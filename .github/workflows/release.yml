@@ -6,6 +6,10 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  # Keep release cargo downloads as resilient as PR CI across GitHub-hosted
+  # runners and architectures.
+  CARGO_NET_RETRY: "10"
+  CARGO_HTTP_MULTIPLEXING: "false"
 
 jobs:
   # ── macOS binary (Metal, linked directly) ─────────────────────────────────

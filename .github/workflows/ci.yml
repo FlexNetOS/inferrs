@@ -8,6 +8,11 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  # Cargo registry downloads on the multi-arch matrix occasionally fail with
+  # abrupt TLS EOFs; retry more aggressively and avoid HTTP/2 multiplexing so
+  # transient crates.io/network hiccups do not fail otherwise-valid builds.
+  CARGO_NET_RETRY: "10"
+  CARGO_HTTP_MULTIPLEXING: "false"
   # Tell cudarc/bindgen_cuda the CUDA version and compute capability without
   # requiring nvcc or nvidia-smi. candle-core's cuda feature pulls in both
   # crates; their build scripts probe for GPU tooling by default, which fails
@@ -58,7 +63,10 @@ jobs:
             runner: ubuntu-24.04-arm
             rustflags: "-C target-feature=+fullfp16"
           - target: x86_64-pc-windows-msvc
-            runner: windows-latest
+            # CUDA 12.6 supports Visual Studio 2017-2022.  Pin to the
+            # supported Windows Server 2022 image instead of windows-latest,
+            # which can advance to a newer MSVC that nvcc rejects.
+            runner: windows-2022
             rustflags: ""
           - target: aarch64-pc-windows-msvc
             runner: windows-11-arm
